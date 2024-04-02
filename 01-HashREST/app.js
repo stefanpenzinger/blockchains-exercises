@@ -1,5 +1,4 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const crypto = require('crypto');
 
 const app = express();
@@ -10,7 +9,6 @@ const HASH_ALGORITHM = "sha256";
 const HEX_DIGEST = "hex";
 
 app.set('port', PORT);
-app.use(bodyParser.json());
 
 /**
  * Calculates the hash from the given header
