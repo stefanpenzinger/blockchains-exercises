@@ -13,7 +13,7 @@ public class HashRestCli {
         String input;
         var scanner = new Scanner(System.in);
 
-        System.out.println("--- HashREST Test Client ---");
+        System.out.println("\n--- HashREST Client CLI ---");
         do {
             System.out.println("The following options are available: ");
             System.out.println("\t(1) /greet [difficulty 1]");
@@ -45,6 +45,6 @@ public class HashRestCli {
 
     private static void printHttpResponse(HttpResponse<String> response) {
         System.out.println("\nResponse from " + response.uri() + " with status " + response.statusCode());
-        System.out.println("Body:" + response.body());
+        System.out.println("Body: " + response.body());
     }
 }

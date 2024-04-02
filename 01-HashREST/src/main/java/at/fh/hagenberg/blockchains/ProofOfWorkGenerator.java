@@ -4,11 +4,15 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Random;
 
 public class ProofOfWorkGenerator {
     private static final int RANDOM_STRING_LEN = 6;
+    private static final ZoneId ZONE_ID = ZoneId.of("Europe/Vienna");
     private static final Random RANDOM = new Random();
+    private static final int NUMBER_OF_LETTERS = 26;
 
     /**
      * @param difficulty The amount of leading zeros the hash has to match
@@ -16,7 +20,7 @@ public class ProofOfWorkGenerator {
      * @return The HashREST plain text [time-stamp];[URL];[random];[counter]
      */
     public String generate(int difficulty, String url) {
-        var timestamp = LocalDateTime.now().toInstant(java.time.ZoneOffset.UTC);
+        var timestamp = ZonedDateTime.of(LocalDateTime.now(), ZONE_ID).toInstant();
         return loopUntilHashRestFinished(difficulty, timestamp, url, generateRandomString());
     }
 
@@ -31,7 +35,7 @@ public class ProofOfWorkGenerator {
      */
     private String loopUntilHashRestFinished(int difficulty, Instant timestamp, String url, String random) {
         var delimiter = ";";
-        var baseString = timestamp.toString() + delimiter + url + delimiter + random + delimiter;
+        var baseString = timestamp.toEpochMilli() + delimiter + url + delimiter + random + delimiter;
         var regexPattern = "^0{" + difficulty + "}.*";
 
         int counter = 0;
@@ -55,7 +59,7 @@ public class ProofOfWorkGenerator {
         var randomString = new StringBuilder();
 
         for (int i = 0; i < RANDOM_STRING_LEN; i++) {
-            int randomNumber = RANDOM.nextInt(26);
+            int randomNumber = RANDOM.nextInt(NUMBER_OF_LETTERS);
             char randomChar = (char) ('a' + randomNumber);
 
             randomString.append(randomChar);
