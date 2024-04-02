@@ -1,0 +1,66 @@
+package at.fh.hagenberg.blockchains;
+
+import org.apache.commons.codec.digest.DigestUtils;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Random;
+
+public class ProofOfWorkGenerator {
+    private static final int RANDOM_STRING_LEN = 6;
+    private static final Random RANDOM = new Random();
+
+    /**
+     * @param difficulty The amount of leading zeros the hash has to match
+     * @param url        The URL to which the request is sent to
+     * @return The HashREST plain text [time-stamp];[URL];[random];[counter]
+     */
+    public String generate(int difficulty, String url) {
+        var timestamp = LocalDateTime.now().toInstant(java.time.ZoneOffset.UTC);
+        return loopUntilHashRestFinished(difficulty, timestamp, url, generateRandomString());
+    }
+
+    /**
+     * Loop through the HashREST generation until the difficulty criteria has been matched.
+     *
+     * @param difficulty The amount of leading zeros the hash has to match
+     * @param timestamp  The time when the HashREST is generated
+     * @param url        The URL to which the request is sent to
+     * @param random     A string consisting of 6 random characters (a-z)
+     * @return The HashREST plain text [time-stamp];[URL];[random];[counter]
+     */
+    private String loopUntilHashRestFinished(int difficulty, Instant timestamp, String url, String random) {
+        var delimiter = ";";
+        var baseString = timestamp.toString() + delimiter + url + delimiter + random + delimiter;
+        var regexPattern = "^0{" + difficulty + "}.*";
+
+        int counter = 0;
+        var sha256hex = "";
+        var hashRest = "";
+
+        do {
+            hashRest = baseString + counter++;
+            sha256hex = DigestUtils.sha256Hex(hashRest);
+        } while (!sha256hex.matches(regexPattern));
+
+        System.out.println("\nHash found for " + hashRest + "\n" + sha256hex);
+
+        return hashRest;
+    }
+
+    /**
+     * @return A string consisting of 6 random characters (a-z)
+     */
+    private String generateRandomString() {
+        var randomString = new StringBuilder();
+
+        for (int i = 0; i < RANDOM_STRING_LEN; i++) {
+            int randomNumber = RANDOM.nextInt(26);
+            char randomChar = (char) ('a' + randomNumber);
+
+            randomString.append(randomChar);
+        }
+
+        return randomString.toString();
+    }
+}
