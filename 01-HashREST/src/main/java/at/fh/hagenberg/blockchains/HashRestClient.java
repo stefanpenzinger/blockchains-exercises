@@ -12,7 +12,6 @@ public class HashRestClient {
     private static final String GREET_ENDPOINT = BASE_URL + "/greet";
     private static final String LIST_ENDPOINT = BASE_URL + "/list";
     private static final String UPLOAD_ENDPOINT = BASE_URL + "/upload";
-
     private final HttpClient httpClient;
     private final ProofOfWorkGenerator proofOfWorkGenerator;
 
@@ -24,7 +23,7 @@ public class HashRestClient {
     /**
      * Sends a GET request to the /greet endpoint
      *
-     * @return The respose of the server
+     * @return The response of the server
      */
     public HttpResponse<String> greet() throws IOException, InterruptedException {
         var request = HttpRequest.newBuilder()
@@ -39,7 +38,7 @@ public class HashRestClient {
     /**
      * Sends a GET request to the /list endpoint
      *
-     * @return The respose of the server
+     * @return The response of the server
      */
     public HttpResponse<String> list() throws IOException, InterruptedException {
         var request = HttpRequest.newBuilder()
@@ -54,7 +53,7 @@ public class HashRestClient {
     /**
      * Sends a POST request to the /upload endpoint
      *
-     * @return The respose of the server
+     * @return The response of the server
      */
     public HttpResponse<String> upload() throws IOException, InterruptedException {
         var request = HttpRequest.newBuilder()
