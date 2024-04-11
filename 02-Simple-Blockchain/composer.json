@@ -1,7 +1,11 @@
 {
   "config": {
-    "github-protocols": ["https"],
-    "github-domains": ["github.com"],
+    "github-protocols": [
+      "https"
+    ],
+    "github-domains": [
+      "github.com"
+    ],
     "process-timeout": 600,
     "http": {
       "timeout": 600
@@ -14,7 +18,8 @@
   },
   "autoload": {
     "psr-4": {
-      "Models\\": "Models/"
+      "Models\\": "Models/",
+      "Middleware\\": "Middleware/"
     }
   }
 }
