@@ -14,7 +14,8 @@
   "require": {
     "slim/slim": "4.*",
     "slim/psr7": "^1.6",
-    "ramsey/uuid": "^4.7"
+    "ramsey/uuid": "^4.7",
+    "guzzlehttp/guzzle": "^7.8"
   },
   "autoload": {
     "psr-4": {
@@ -23,6 +24,10 @@
     }
   },
   "scripts": {
-    "start": "php -S localhost:8000 -t public"
+    "start": [
+      "Composer\\Config::disableProcessTimeout",
+      "php -S localhost:8000 -t public"
+    ],
+    "stop": "killall -9 php"
   }
 }
