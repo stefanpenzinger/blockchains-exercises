@@ -36,7 +36,7 @@ $app->get('/mine', function (Request $request, Response $response) use ($blockch
 });
 
 $app->post('/transactions/new', function (Request $request, Response $response) use ($blockchain) {
-    $params = (array) $request->getParsedBody();
+    $params = (array)$request->getParsedBody();
     $required = ['sender', 'recipient', 'amount'];
     $errors = array();
 
@@ -60,6 +60,47 @@ $app->post('/transactions/new', function (Request $request, Response $response) 
 
 $app->get('/chain', function (Request $request, Response $response) use ($blockchain) {
     $body = ['chain' => $blockchain->chain(), 'length' => count($blockchain->chain())];
+    $response->getBody()->write(json_encode($body, JSON_PRETTY_PRINT));
+    return $response;
+});
+
+$app->post('/nodes/register', function (Request $request, Response $response) use ($blockchain) {
+    $params = (array)$request->getParsedBody();
+    $nodes = $params['nodes'] ?? [];
+
+    if (empty($nodes)) {
+        $body = ['error' => 'Please supply a valid list of nodes'];
+        $response->getBody()->write(json_encode($body, JSON_PRETTY_PRINT));
+        return $response->withStatus(400);
+    }
+
+    foreach ($nodes as $node) {
+        $blockchain->registerNode($node);
+    }
+
+    $body = [
+        'message' => 'New nodes have been added',
+        'total_nodes' => $blockchain->nodes()
+    ];
+    $response->getBody()->write(json_encode($body, JSON_PRETTY_PRINT));
+    return $response->withStatus(201);
+});
+
+$app->get('/nodes/resolve', function (Request $request, Response $response) use ($blockchain) {
+    $replaced = $blockchain->resolveConflicts();
+
+    if ($replaced) {
+        $body = [
+            'message' => 'Our chain was replaced',
+            'new_chain' => $blockchain->chain()
+        ];
+    } else {
+        $body = [
+            'message' => 'Our chain is authoritative',
+            'chain' => $blockchain->chain()
+        ];
+    }
+
     $response->getBody()->write(json_encode($body, JSON_PRETTY_PRINT));
     return $response;
 });
