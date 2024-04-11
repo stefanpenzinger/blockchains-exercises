@@ -2,15 +2,22 @@
 
 namespace Models;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use Ramsey\Collection\Set;
+use Slim\Logger;
+
 class BlockChain
 {
     private array $chain;
     private array $currentTransactions;
+    private Set $nodes;
 
     public function __construct()
     {
         $this->chain = [];
         $this->currentTransactions = [];
+        $this->nodes = new Set(Node::class);
 
         // Create Genesis block
         $this->newBlock(100, '1');
@@ -102,5 +109,89 @@ class BlockChain
     public function chain(): array
     {
         return $this->chain;
+    }
+
+    /** Add a new node to the list of nodes
+     * @param Node $node
+     */
+    public function registerNode(Node $node): void
+    {
+        $this->nodes->add($node);
+    }
+
+    /** Return the set of nodes
+     * @return Set
+     */
+    public function nodes(): Set
+    {
+        return $this->nodes;
+    }
+
+    /** Replace chain with the longest chain of every node
+     * @throws GuzzleException
+     */
+    public function resolveConflicts(): bool
+    {
+        $client = new Client();
+        $neighbors = $this->nodes;
+        $newChain = null;
+        $maxLen = count($this->chain);
+
+        /** @var Node $node */
+        foreach ($neighbors as $node) {
+            $url = $node->url() . "/chain";
+            $res = $client->request('GET', $url);
+
+            if ($res->getStatusCode() !== 200) {
+                continue;
+            }
+
+            $data = json_decode($res->getBody(), true);
+            $length = $data['length'];
+            $chain = $data['chain'];
+
+            if ($length > $maxLen && $this->validChain($chain)) {
+                $maxLen = $length;
+                $newChain = $chain;
+            }
+        }
+
+        if ($newChain) {
+            $this->chain = $newChain;
+            return true;
+        }
+
+        return false;
+    }
+
+    /** Determine if a given blockchain is valid
+     * @param array $chain A blockchain
+     * @return bool True if valid, false if not
+     */
+    private function validChain(array $chain): bool
+    {
+        $lastBlock = $chain[0];
+        $currentIndex = 1;
+
+        while ($currentIndex < count($this->chain)) {
+            $block = $chain[$currentIndex];
+
+            Logger::class->info($lastBlock);
+            Logger::class->info($block);
+            Logger::class->info("------------------");
+
+            if ($block['previous_hash'] !== $this->hash($lastBlock)) {
+                return false;
+            }
+
+            if (!$this->validProof($lastBlock['proof'], $block['proof'])) {
+                return false;
+            }
+
+            $lastBlock = $block;
+            $currentIndex++;
+        }
+
+        return true;
     }
 }
