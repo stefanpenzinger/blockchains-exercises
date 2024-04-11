@@ -1,0 +1,20 @@
+{
+  "config": {
+    "github-protocols": ["https"],
+    "github-domains": ["github.com"],
+    "process-timeout": 600,
+    "http": {
+      "timeout": 600
+    }
+  },
+  "require": {
+    "slim/slim": "4.*",
+    "slim/psr7": "^1.6",
+    "ramsey/uuid": "^4.7"
+  },
+  "autoload": {
+    "psr-4": {
+      "Models\\": "Models/"
+    }
+  }
+}
