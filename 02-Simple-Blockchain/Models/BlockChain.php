@@ -2,10 +2,9 @@
 
 namespace Models;
 
+use Ds\Set;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Ramsey\Collection\Set;
-use Slim\Logger;
 
 class BlockChain
 {
@@ -17,7 +16,7 @@ class BlockChain
     {
         $this->chain = [];
         $this->currentTransactions = [];
-        $this->nodes = new Set(Node::class);
+        $this->nodes = new Set();
 
         // Create Genesis block
         $this->newBlock(100, '1');
@@ -112,19 +111,19 @@ class BlockChain
     }
 
     /** Add a new node to the list of nodes
-     * @param Node $node
+     * @param string $url
      */
-    public function registerNode(Node $node): void
+    public function registerNode(string $url): void
     {
-        $this->nodes->add($node);
+        $this->nodes->add($url);
     }
 
     /** Return the set of nodes
-     * @return Set
+     * @return array nodes
      */
-    public function nodes(): Set
+    public function nodes(): array
     {
-        return $this->nodes;
+        return $this->nodes->toArray();
     }
 
     /** Replace chain with the longest chain of every node
@@ -137,9 +136,8 @@ class BlockChain
         $newChain = null;
         $maxLen = count($this->chain);
 
-        /** @var Node $node */
-        foreach ($neighbors as $node) {
-            $url = $node->url() . "/chain";
+        foreach ($neighbors as $baseUrl) {
+            $url = $baseUrl . "/chain";
             $res = $client->request('GET', $url);
 
             if ($res->getStatusCode() !== 200) {
@@ -175,10 +173,6 @@ class BlockChain
 
         while ($currentIndex < count($this->chain)) {
             $block = $chain[$currentIndex];
-
-            Logger::class->info($lastBlock);
-            Logger::class->info($block);
-            Logger::class->info("------------------");
 
             if ($block['previous_hash'] !== $this->hash($lastBlock)) {
                 return false;

@@ -15,7 +15,9 @@
     "slim/slim": "4.*",
     "slim/psr7": "^1.6",
     "ramsey/uuid": "^4.7",
-    "guzzlehttp/guzzle": "^7.8"
+    "guzzlehttp/guzzle": "^7.8",
+    "php-di/php-di": "^7.0",
+    "php-ds/php-ds": "^1.5"
   },
   "autoload": {
     "psr-4": {
