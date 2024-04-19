@@ -1,5 +1,7 @@
 # Assignment #2: Implement a simple blockchain
 Implement a simple blockchain in a programming language of your choice. This assignment was made in PHP and the framework Slim.
+As PHP is intended to "_do and forget_" and thus does not support in-memory storage (like Java), the state of the blockchain is stored in a file as well as the associated node identifier.
+A node identifier is mapped to a port number on which the php application is listening on.
 
 ## Setup
 Install the dependencies with composer:
