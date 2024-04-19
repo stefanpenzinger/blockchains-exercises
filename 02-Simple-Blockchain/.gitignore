@@ -31,3 +31,5 @@ cache.properties
 # Composer
 composer.phar
 composer.lock
+
+/storage/
